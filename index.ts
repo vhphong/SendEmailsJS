@@ -3,7 +3,9 @@ import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import sg from '@sendgrid/mail';
 
-require('dotenv').config({ path: '.env' })
+const verifiedToken = require('./middleware/auth');
+
+require('dotenv').config({ path: '.env' });
 
 const SENDGRID_API_KEY = process.env.SENDGRID_FULL_ACCESS_API_KEY;
 const SENDER_EMAIL = process.env.VERIFIED_SENDER_EMAIL;
@@ -227,24 +229,22 @@ app.post('/confirm/email/:emailtoconfirm', async (req, res) => {
 
 
 // confirm token when customer clicked on the confirmation token link
-app.get('/confirm/token/:token', async (req, res) => {
+app.get('/confirm/token/:token', verifiedToken, async (req, res) => {
     try {
         const token = req.params.token;
 
         // decode the token to get payload
-        const payload: any = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        const retrievedPayload: any = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
         // get email, password from the payload
-        // const userEmail = payload.email;
-        // const userPassword = payload.password;
 
         // console.log('payload');
         // console.log(payload);
-        console.log('payload.email');
-        console.log(payload.email);
+        // console.log('payload.email');
+        // console.log(payload.email);
         // console.log(payload.password);
 
-        res.json({ payload });
+        res.json({ retrievedPayload });
 
         // login: by comparing email and password of payload to the in database
         let found: any;
@@ -256,10 +256,10 @@ app.get('/confirm/token/:token', async (req, res) => {
         //     }
         // }
 
-        found = users.find(element => element.email === payload.email);
+        found = users.find(element => element.email === retrievedPayload.email);
 
-        console.log('found');
-        console.log(found);
+        // console.log('found');
+        // console.log(found);
 
         if (found) {
             console.log('logged in');
