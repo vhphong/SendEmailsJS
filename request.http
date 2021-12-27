@@ -1,0 +1,5 @@
+GET http://localhost:3004/home
+
+###
+
+POST http://localhost:3004/email/phong2@email.com
